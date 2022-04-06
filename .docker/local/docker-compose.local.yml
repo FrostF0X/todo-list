@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: ./.docker/local/Dockerfile
+      args:
+        VERSION: dev
+    command:
+      - run
+  app-debug:
+    build:
+      context: ../..
+      dockerfile: ./.docker/local/Dockerfile
+      args:
+        VERSION: dev
+    command:
+      - run
+
+  database:
+    volumes:
+      - db:/var/lib/postgresql/data
+  s3:
+    volumes:
+      - s3:/data
+
+volumes:
+  db:
+  s3:

@@ -1,0 +1,10 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% set diff = field.formattedValue.diff(now()) %}
+{% set date = field.formattedValue|date_modify("+2 hour") %}
+{% if diff.d > 0 %}
+    {{ date | date('Y-m-d H:i:s') }}
+{% else %}
+    {{ diff|date("%H:%I:%S") }} [ {{ date | date('H:i:s') }} ]
+{% endif %}

@@ -1,0 +1,1 @@
+.docker/local/.env.crypt filter=git-crypt diff=git-crypt

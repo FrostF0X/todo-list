@@ -1,0 +1,19 @@
+framework:
+  messenger:
+    failure_transport: failed
+
+    transports:
+      async:
+        dsn: 'doctrine://default'
+        retry_strategy:
+          max_retries: 5
+          delay: 0
+          multiplier: 1
+      failed: 'doctrine://default?queue_name=failed'
+      sync: 'sync://'
+    routing:
+
+when@dev:
+  framework:
+    messenger:
+      routing:

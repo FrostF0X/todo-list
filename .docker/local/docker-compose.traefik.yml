@@ -1,0 +1,95 @@
+version: "3.7"
+
+services:
+  app:
+    labels:
+      traefik.http.routers.todo-list-http.rule: Host(`lvh.me`)
+      traefik.http.routers.todo-list-http.entrypoints: http
+      traefik.http.routers.todo-list-https.rule: Host(`lvh.me`)
+      traefik.http.routers.todo-list-https.entrypoints: https
+    networks:
+      todo-list:
+  app-debug:
+    labels:
+      traefik.http.routers.todo-list-debug-http.rule: Host(`lvh.me`) && HeadersRegexp(`Cookie`, `XDEBUG_SESSION`)
+      traefik.http.routers.todo-list-debug-http.entrypoints: http
+      traefik.http.routers.todo-list-debug-https.rule: Host(`lvh.me`) && HeadersRegexp(`Cookie`, `XDEBUG_SESSION`)
+      traefik.http.routers.todo-list-debug-https.entrypoints: https
+    networks:
+      todo-list:
+  mailhog:
+    labels:
+      traefik.http.routers.todo-list-mailhog-http.rule: Host(`mailhog.lvh.me`)
+      traefik.http.routers.todo-list-mailhog-http.entrypoints: http
+      traefik.http.routers.todo-list-mailhog-https.rule: Host(`mailhog.lvh.me`)
+      traefik.http.routers.todo-list-mailhog-https.entrypoints: https
+      traefik.http.services.todo-list-mailhog.loadbalancer.server.port: 8025
+    networks:
+      todo-list:
+
+  traefik:
+    image: "traefik:v2.4"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=true"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      traefik.http.middlewares.https-redirect.redirectscheme.scheme: https
+    networks:
+      todo-list:
+
+  database:
+    networks:
+      todo-list:
+
+  redis:
+    networks:
+      todo-list:
+
+  redis-commander:
+    labels:
+      traefik.http.routers.todo-list-redis-commander-http.rule: Host(`redis.lvh.me`)
+      traefik.http.routers.todo-list-redis-commander-http.entrypoints: http
+      traefik.http.routers.todo-list-redis-commander-https.rule: Host(`redis.lvh.me`)
+      traefik.http.routers.todo-list-redis-commander-https.entrypoints: https
+      traefik.http.services.todo-list-redis-commander.loadbalancer.server.port: 8081
+    networks:
+      todo-list:
+
+  s3:
+    environment:
+      - "MINIO_DOMAIN=s3,s3.lvh.me"
+    labels:
+      traefik.http.routers.todo-list-s3-http.rule: Host(`media.s3.lvh.me`)
+      traefik.http.routers.todo-list-s3-http.entrypoints: http
+      traefik.http.routers.todo-list-s3-https.rule: Host(`media.s3.lvh.me`)
+      traefik.http.routers.todo-list-s3-https.entrypoints: https
+      traefik.http.services.todo-list-s3.loadbalancer.server.port: 80
+    networks:
+      todo-list:
+
+  s3-admin:
+    labels:
+      traefik.http.routers.todo-list-s3-consolehttp.rule: Host(`console.s3.lvh.me`)
+      traefik.http.routers.todo-list-s3-consolehttp.entrypoints: http
+      traefik.http.routers.todo-list-s3-consolehttps.rule: Host(`console.s3.lvh.me`)
+      traefik.http.routers.todo-list-s3-consolehttps.entrypoints: https
+      traefik.http.services.todo-list-s3-console.loadbalancer.server.port: 9000
+    networks:
+      todo-list:
+
+  s3-createbucket:
+    networks:
+      todo-list:
+
+networks:
+  todo-list:
+    name: "todo-list"
