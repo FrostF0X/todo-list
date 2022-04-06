@@ -12,6 +12,6 @@ class HomeController implements ControllerInterface
     #[Get('/')]
     public function index(): Response
     {
-        return new Response('Привіт Степан!!!');
+        return new Response('Bobra');
     }
 }
